@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CHUB Heart Disease Risk Prediction System
 
 ## 1. Project Overview
@@ -26,3 +27,6 @@ ITLML_801_S_A_25RP20037\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+=======
+# Heart-Disease-Risk-Prediction-System
+>>>>>>> 95fd4d0217a754518784ba7019071bf97099d759
