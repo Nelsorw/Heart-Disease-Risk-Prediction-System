@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CHUB Heart Disease Risk Prediction</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body {
+    background-color: #f8f9fa;
+}
+h2, h4 {
+    font-weight: bold;
+}
+.result-box {
+    padding: 25px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.5rem;
+}
+.immediate-danger {background-color: #e74c3c;}
+.mild {background-color: #f1c40f;}
+.no-disease {background-color: #2ecc71;}
+.severe {background-color: #c0392b;}
+.very-mild {background-color: #3498db;}
+.prob-list li {display: flex; justify-content: space-between;}
+.form-label {
+    font-weight: 500;
+}
+</style>
+</head>
+<body>
+<div class="container my-5 p-4 bg-white rounded shadow-sm">
+    <h2 class="text-center mb-4">CHUB Heart Disease Risk Prediction</h2>
+    <p class="text-center text-muted mb-4">Enter patient clinical data below to predict heart disease risk level</p>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label class="form-label">Age</label>
+            <input type="number" step="1" min="1" name="age" class="form-control" placeholder="Years" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Resting BP (trestbps)</label>
+            <input type="number" step="1" name="trestbps" class="form-control" placeholder="mm Hg" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Cholesterol (chol)</label>
+            <input type="number" step="1" name="chol" class="form-control" placeholder="mg/dl" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Max Heart Rate (thalach)</label>
+            <input type="number" step="1" name="thalach" class="form-control" placeholder="bpm" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Oldpeak</label>
+            <input type="number" step="0.1" name="oldpeak" class="form-control" placeholder="ST depression" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Number of Major Vessels (ca)</label>
+            <input type="number" step="1" min="0" max="4" name="ca" class="form-control" placeholder="0-4" required>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Sex</label>
+            <select name="sex" class="form-select" required>
+                <option value="" disabled selected>Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Chest Pain Type (cp)</label>
+            <select name="cp" class="form-select" required>
+                <option value="" disabled selected>Select</option>
+                <option value="typical angina">Typical Angina</option>
+                <option value="atypical angina">Atypical Angina</option>
+                <option value="non-anginal">Non-Anginal</option>
+                <option value="asymptomatic">Asymptomatic</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Fasting Blood Sugar (fbs)</label>
+            <select name="fbs" class="form-select" required>
+                <option value="" disabled selected>Select</option>
+                <option value="yes">Yes (&gt;120 mg/dl)</option>
+                <option value="no">No (&le;120 mg/dl)</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Resting ECG (restecg)</label>
+            <select name="restecg" class="form-select" required>
+                <option value="" disabled selected>Select</option>
+                <option value="normal">Normal</option>
+                <option value="ST-T wave abnormality">ST-T Wave Abnormality</option>
+                <option value="left ventricular hypertrophy">Left Ventricular Hypertrophy</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Exercise Induced Angina (exang)</label>
+            <select name="exang" class="form-select" required>
+                <option value="" disabled selected>Select</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Slope of ST Segment (slope)</label>
+            <select name="slope" class="form-select" required>
+                <option value="" disabled selected>Select</option>
+                <option value="upsloping">Upsloping</option>
+                <option value="flat">Flat</option>
+                <option value="downsloping">Downsloping</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Thalassemia (thal)</label>
+            <select name="thal" class="form-select" required>
+                <option value="" disabled selected>Select</option>
+                <option value="normal">Normal</option>
+                <option value="fixed defect">Fixed Defect</option>
+                <option value="reversible defect">Reversible Defect</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary w-100 mt-3">Predict Risk</button>
+        </div>
+    </form>
+
+    {% if result %}
+    <div class="result-box
+        {% if result == 'immediate danger' %}immediate-danger{% elif result == 'mild' %}mild
+        {% elif result == 'no disease' %}no-disease{% elif result == 'severe' %}severe
+        {% elif result == 'very mild' %}very-mild{% endif %}">
+        Prediction: {{ result }} <br>
+        Confidence: {{ (confidence*100)|round(2) }}%
+    </div>
+
+    <div class="mt-4">
+        <h4>Class Probabilities</h4>
+        <ul class="list-group prob-list">
+            {% for k,v in probabilities.items() %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ k }}
+                <span class="badge rounded-pill" 
+                    style="background-color: {% if k=='immediate danger' or k=='severe' %}#e74c3c
+                                            {% elif k=='very mild' or k=='mild' %}#f1c40f
+                                            {% elif k=='no disease' %}#2ecc71{% endif %};">
+                    {{ (v*100)|round(2) }}%
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+</body>
+</html>
